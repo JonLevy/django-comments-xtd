@@ -45,15 +45,8 @@ class WriteCommentSerializer(serializers.Serializer):
         super(WriteCommentSerializer, self).__init__(*args, **kwargs)
 
     def validate_name(self, value):
-        if not len(value):
-            if (
-                    not len(self.request.user.get_full_name())
-                    or not self.request.user.is_authenticated
-            ):
-                raise serializers.ValidationError("This field is required")
-            else:
-                return (self.request.user.get_full_name() or
-                        self.request.user.get_username())
+        if value !=  self.request.user.get_username():
+            raise serializers.ValidationError("Name should match username.")
         return value
 
     def validate_email(self, value):
