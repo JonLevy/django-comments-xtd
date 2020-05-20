@@ -13,6 +13,10 @@ from django_comments_xtd.api import serializers
 from django_comments_xtd.models import XtdComment, LIKEDIT_FLAG, DISLIKEDIT_FLAG
 from django_comments_xtd.utils import get_current_site_id
 
+# ROIL fork imports
+from django_comments_xtd.api.permissions import CanAccessComments
+from django_comments_xtd.api.utils import get_discussion_from_kwargs
+
 
 class CommentCreate(generics.CreateAPIView):
     """Create a comment."""
@@ -37,8 +41,15 @@ class CommentCreate(generics.CreateAPIView):
 class CommentList(generics.ListAPIView):
     """List all comments for a given ContentType and object ID."""
     serializer_class = serializers.ReadCommentSerializer
+    permission_classes = (CanAccessComments,)
 
     def get_queryset(self, **kwargs):
+        self.kwargs['object_pk'] = get_discussion_from_kwargs(
+            self.kwargs, True)
+        self.kwargs['content_type'] = 'comments-discussion'
+        return self.nonfork_get_queryset(**kwargs)
+
+    def nonfork_get_queryset(self, **kwargs):  # func from unforked version
         content_type_arg = self.kwargs.get('content_type', None)
         object_pk_arg = self.kwargs.get('object_pk', None)
         app_label, model = content_type_arg.split("-")
