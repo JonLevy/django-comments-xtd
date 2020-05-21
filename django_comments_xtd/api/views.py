@@ -14,7 +14,7 @@ from django_comments_xtd.models import XtdComment, LIKEDIT_FLAG, DISLIKEDIT_FLAG
 from django_comments_xtd.utils import get_current_site_id
 
 # ROIL fork imports
-from django_comments_xtd.api.permissions import CanAccessComments
+from django_comments_xtd.api.permissions import can_user_access_dicussion
 from django_comments_xtd.api.utils import get_discussion_from_kwargs
 
 
@@ -41,11 +41,12 @@ class CommentCreate(generics.CreateAPIView):
 class CommentList(generics.ListAPIView):
     """List all comments for a given ContentType and object ID."""
     serializer_class = serializers.ReadCommentSerializer
-    permission_classes = (CanAccessComments,)
 
     def get_queryset(self, **kwargs):
-        self.kwargs['object_pk'] = get_discussion_from_kwargs(
-            self.kwargs, True)
+        disc = get_discussion_from_kwargs(self.kwargs, False)
+
+        can_user_access_dicussion(self.request.user, disc)  # check permission
+        self.kwargs['object_pk'] = disc.id
         self.kwargs['content_type'] = 'comments-discussion'
         return self.nonfork_get_queryset(**kwargs)
 
