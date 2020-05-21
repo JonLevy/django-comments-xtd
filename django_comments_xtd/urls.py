@@ -32,7 +32,7 @@ urlpatterns = [
         name='comments-xtd-api-flag'),
 
     # list Comments from playlist and item pks
-    url(r'^api/roil_list(?P<item_pk>.+)/(?P<playlist_pk>.+)/$',
+    url(r'^api/roil_list/(?P<item_pk>.+)/(?P<playlist_pk>.+)/$',
         api.CommentList.as_view(), name='roil-comments-xtd-api-list'),
 
     url(r'', include("django_comments.urls")),

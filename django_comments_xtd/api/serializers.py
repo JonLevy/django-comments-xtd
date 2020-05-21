@@ -45,7 +45,7 @@ class WriteCommentSerializer(serializers.Serializer):
         super(WriteCommentSerializer, self).__init__(*args, **kwargs)
 
     def validate_name(self, value):
-        if value !=  self.request.user.get_username():
+        if value != self.request.user.get_username():
             raise serializers.ValidationError("Name should match username.")
         return value
 
