@@ -76,7 +76,7 @@ class WriteCommentSerializer(serializers.Serializer):
             return serializers.ValidationError("The given content-type %r does "
                                                "not resolve to a valid model."
                                                % escape(ctype))
-        except model.ObjectDoesNotExist:
+        except model.DoesNotExist:
             return serializers.ValidationError(
                 "No object matching content-type %r and object PK %r exists."
                 % (escape(ctype), escape(object_pk)))
