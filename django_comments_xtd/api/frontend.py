@@ -5,6 +5,7 @@ from django_comments_xtd.conf import settings
 from django_comments_xtd.utils import get_current_site_id
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from django.apps import apps
 
 XtdComment = get_comment_model()
 
@@ -59,27 +60,27 @@ def commentbox_props(obj, user, request=None):
     ctype_slug = "%s-%s" % (ctype.app_label, ctype.model)
     d = {
         "comment_count": queryset.count(),
-        "allow_comments": True,
-        "current_user": "0:Anonymous",
-        "request_name": False,
-        "request_email_address": False,
-        "is_authenticated": False,
-        "allow_flagging": False,
-        "allow_feedback": False,
-        "show_feedback": False,
+#        "allow_comments": True,
+#        "current_user": "0:Anonymous",
+#        "request_name": False,
+#        "request_email_address": False,
+#        "is_authenticated": False,
+#        "allow_flagging": False,
+#        "allow_feedback": False,
+#        "show_feedback": False,
         "can_moderate": False,
-        "poll_interval": 2000,
-        "feedback_url": _reverse("comments-xtd-api-feedback"),
-        "delete_url": _reverse("comments-delete", args=(0,)),
-        "reply_url": _reverse("comments-xtd-reply", kwargs={'cid': 0}),
-        "flag_url": _reverse("comments-flag", args=(0,)),
-        "list_url": _reverse('comments-xtd-api-list',
-                             kwargs={'content_type': ctype_slug,
-                                     'object_pk': obj.id}),
-        "count_url": _reverse('comments-xtd-api-count',
-                              kwargs={'content_type': ctype_slug,
-                                      'object_pk': obj.id}),
-        "send_url": _reverse("comments-xtd-api-create"),
+#        "poll_interval": 2000,
+#        "feedback_url": _reverse("comments-xtd-api-feedback"),
+#        "delete_url": _reverse("comments-delete", args=(0,)),
+#        "reply_url": _reverse("comments-xtd-reply", kwargs={'cid': 0}),
+#        "flag_url": _reverse("comments-flag", args=(0,)),
+#        "list_url": _reverse('comments-xtd-api-list',
+#                             kwargs={'content_type': ctype_slug,
+#                                     'object_pk': obj.id}),
+#        "count_url": _reverse('comments-xtd-api-count',
+#                              kwargs={'content_type': ctype_slug,
+#                                      'object_pk': obj.id}),
+#        "send_url": _reverse("comments-xtd-api-create"),
         "form": {
             "content_type": form['content_type'].value(),
             "object_pk": form['object_pk'].value(),
@@ -87,21 +88,21 @@ def commentbox_props(obj, user, request=None):
             "security_hash": form['security_hash'].value()
         }
     }
-    try:
-        user_is_authenticated = user.is_authenticated()
-    except TypeError:  # Django >= 1.11
-        user_is_authenticated = user.is_authenticated
-    if user and user_is_authenticated:
-        d['current_user'] = "%d:%s" % (
-            user.pk, settings.COMMENTS_XTD_API_USER_REPR(user))
-        d['is_authenticated'] = True
-        d['can_moderate'] = user.has_perm("django_comments.can_moderate")
-        d['request_name'] = True if not len(user.get_full_name()) else False
-        d['request_email_address'] = True if not user.email else False
-    else:
-        d['login_url'] = "/admin/login/"
-        d['like_url'] = reverse("comments-xtd-like", args=(0,))
-        d['dislike_url'] = reverse("comments-xtd-dislike", args=(0,))
+#    try:
+#        user_is_authenticated = user.is_authenticated()
+#    except TypeError:  # Django >= 1.11
+#        user_is_authenticated = user.is_authenticated
+#    if user and user_is_authenticated:
+#        d['current_user'] = "%d:%s" % (
+#            user.pk, settings.COMMENTS_XTD_API_USER_REPR(user))
+#        d['is_authenticated'] = True
+#        d['can_moderate'] = user.has_perm("django_comments.can_moderate")
+#        d['request_name'] = True if not len(user.get_full_name()) else False
+#        d['request_email_address'] = True if not user.email else False
+#    else:
+#        d['login_url'] = "/admin/login/"
+#        d['like_url'] = reverse("comments-xtd-like", args=(0,))
+#        d['dislike_url'] = reverse("comments-xtd-dislike", args=(0,))
 
     return d
 
