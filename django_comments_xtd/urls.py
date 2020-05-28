@@ -37,6 +37,8 @@ urlpatterns = [
         api.CommentList.as_view(), name='roil-comments-xtd-api-list'),
     url(r'^api/delete/$', api.DeleteComment.as_view(),
         name='comments-xtd-api-delete'),
+    url(r'^api/edit/$', api.EditComment.as_view(),
+        name='comments-xtd-api-edit'),
 
     url(r'', include("django_comments.urls")),
 ]

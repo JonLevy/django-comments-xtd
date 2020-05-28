@@ -13,7 +13,7 @@ from django_comments_xtd import views
 from django_comments_xtd.api import serializers
 from django_comments_xtd.models import XtdComment, LIKEDIT_FLAG, DISLIKEDIT_FLAG
 from django_comments_xtd.utils import get_current_site_id
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -23,6 +23,7 @@ from django_comments_xtd.api.permissions import can_user_access_discussion, \
 from django_comments_xtd.api.utils import get_discussion_from_kwargs
 from django_comments.models import Comment
 from rest_framework.generics import get_object_or_404
+import datetime
 
 class CommentCreate(generics.CreateAPIView):
     """Create a comment."""
@@ -149,3 +150,25 @@ class DeleteComment(APIView):
             raise PermissionDenied
         aa = perform_delete(self.request, comment)
         return Response(status=status.HTTP_201_CREATED)
+
+
+class EditComment(generics.UpdateAPIView):
+    """User edit their own comment."""
+
+    serializer_class = serializers.ReadCommentSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        if set(self.request.data.keys()) != {'comment_id', 'comment_text'}:
+            raise PermissionDenied
+        comment = get_object_or_404(XtdComment,
+            id=int(self.request.data['comment_id']))
+
+        if comment.user != self.request.user:  # TODO move to a permission
+            raise PermissionDenied
+        if comment.comment == self.request.data['comment_text']:  #no change
+            raise ValidationError('Editing requires a change in text.')
+        comment.edited = True
+        comment.submit_date = datetime.datetime.now()
+        comment.comment = self.request.data['comment_text']
+        return comment

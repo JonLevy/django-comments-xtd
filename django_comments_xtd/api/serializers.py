@@ -216,12 +216,14 @@ class ReadCommentSerializer(serializers.ModelSerializer):
     allow_reply = serializers.SerializerMethodField()
     permalink = serializers.SerializerMethodField()
     flags = ReadFlagField(many=True, read_only=True)
+    edited = serializers.BooleanField(default=False)
 
     class Meta:
         model = XtdComment
         fields = ('id', 'user_name', 'user_url', 'user_moderator',
                   'user_avatar', 'permalink', 'comment', 'submit_date',
-                  'parent_id', 'level', 'is_removed', 'allow_reply', 'flags')
+                  'parent_id', 'level', 'is_removed', 'allow_reply', 'flags',
+                  'edited')
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs['context']['request']

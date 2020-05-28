@@ -69,6 +69,7 @@ class XtdComment(Comment):
     followup = models.BooleanField(blank=True, default=False,
                                    help_text=_("Notify follow-up comments"))
     objects = XtdCommentManager()
+    edited = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
