@@ -39,6 +39,7 @@ class WriteCommentSerializer(serializers.Serializer):
     comment = serializers.CharField(max_length=COMMENT_MAX_LENGTH)
     followup = serializers.BooleanField(default=False)
     reply_to = serializers.IntegerField(default=0)
+    id = serializers.IntegerField(default=0)
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs['context']['request']
@@ -130,6 +131,7 @@ class WriteCommentSerializer(serializers.Serializer):
         ):
             if not views._comment_exists(resp['comment']):
                 new_comment = views._create_comment(resp['comment'])
+                resp['comment']['id'] = new_comment.id
                 resp['comment'].xtd_comment = new_comment
                 confirmation_received.send(sender=TmpXtdComment,
                                            comment=resp['comment'],
