@@ -16,17 +16,19 @@ def can_user_access_discussion(user, discussion):
         return False
     return True
 
-def can_moderate_comments(user, discussion):
+def can_moderate_comments(user, comment):
+    discussion = comment.content_type.model_class().objects.get(
+        id=comment.object_pk)
     PlaylistUserContext = apps.get_model(app_label='playlists',
         model_name='PlaylistUserContext')
     try:
         plc = PlaylistUserContext.objects.get(user=user,
-            playlist=obj.playlist)
+            playlist=discussion.playlist)
     except PlaylistUserContext.DoesNotExist:
         return False
 
     admin_rank = PlaylistUserContext.ROLE_ORDINALS[
         PlaylistUserContext.ADMIN]
-    if PlaylistUserContext.ROLE_ORDINALS[obj.role] >= admin_rank:
+    if PlaylistUserContext.ROLE_ORDINALS[plc.role] >= admin_rank:
         return True
     return False
