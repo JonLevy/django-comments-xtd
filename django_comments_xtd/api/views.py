@@ -20,7 +20,7 @@ from rest_framework.permissions import IsAuthenticated
 # ROIL fork imports
 from django.apps import apps
 from django_comments_xtd.api.permissions import can_user_access_discussion, \
-    can_moderate_comments, not_my_comment
+    can_moderate_comments, not_my_comment, validate_flagging_for_removal
 from django_comments_xtd.api.utils import get_discussion_from_kwargs
 from django_comments.models import Comment
 from rest_framework.generics import get_object_or_404
@@ -141,6 +141,7 @@ class CreateReportFlag(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
+        validate_flagging_for_removal(request)
         return super(CreateReportFlag, self).post(request, *args, **kwargs)
 
     def perform_create(self, serializer):

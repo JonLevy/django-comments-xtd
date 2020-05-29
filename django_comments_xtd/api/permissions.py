@@ -1,5 +1,5 @@
 from django.apps import apps
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from django_comments_xtd.models import XtdComment
 
@@ -39,3 +39,11 @@ def can_moderate_comments(user, comment):
     if PlaylistUserContext.ROLE_ORDINALS[plc.role] >= admin_rank:
         return
     raise PermissionDenied
+
+def validate_flagging_for_removal(request):
+    if set(request.data.keys()) != {'flag', 'comment'} or \
+            request.data['flag'] != 'report':
+        raise ValidationError
+    cmt = XtdComment.objects.get(id=request.data['comment'])
+    if cmt.user == request.user:
+        raise PermissionDenied
