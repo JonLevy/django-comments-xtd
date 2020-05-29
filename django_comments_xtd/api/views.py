@@ -18,6 +18,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
 
 # ROIL fork imports
+from django.apps import apps
 from django_comments_xtd.api.permissions import can_user_access_discussion, \
     can_moderate_comments, not_my_comment
 from django_comments_xtd.api.utils import get_discussion_from_kwargs
@@ -25,12 +26,22 @@ from django_comments.models import Comment
 from rest_framework.generics import get_object_or_404
 import datetime
 
+CONTENT_TYPE_TO_TYPE = {
+    'comments.discussion': apps.get_model('comments', 'Discussion'),
+}
+
 class CommentCreate(generics.CreateAPIView):
     """Create a comment."""
     serializer_class = serializers.WriteCommentSerializer
 
     def post(self, request, *args, **kwargs):
+        discussion = get_object_or_404(
+            CONTENT_TYPE_TO_TYPE[request.data['content_type']],
+            id=request.data['object_pk']
+        )
+        can_user_access_discussion(request.user, discussion)  # permission check
         serializer = self.get_serializer(data=request.data)
+
         if serializer.is_valid():
             response = super(CommentCreate, self).post(request, *args, **kwargs)
         else:
@@ -52,11 +63,7 @@ class CommentList(generics.ListAPIView):
 
     def get_queryset(self, **kwargs):
         disc = get_discussion_from_kwargs(self.kwargs, False)
-
-        if not can_user_access_discussion(self.request.user, disc):
-            # Need here, instead of permission attribute because object
-            # permissions are not tested on list
-            raise PermissionDenied
+        can_user_access_discussion(self.request.user, disc)  # permission check
         self.kwargs['object_pk'] = disc.id
         self.kwargs['content_type'] = 'comments-discussion'
         return self.nonfork_get_queryset(**kwargs)
@@ -147,8 +154,7 @@ class DeleteComment(APIView):
 
     def post(self, request, *args, **kwargs):
         comment = get_object_or_404(Comment, id=int(request.data['comment']))
-        if not can_moderate_comments(request.user, comment):
-            raise PermissionDenied
+        can_moderate_comments(request.user, comment)  # permission test
         aa = perform_delete(self.request, comment)
         return Response(status=status.HTTP_201_CREATED)
 

@@ -12,17 +12,16 @@ def not_my_comment(request):
 def can_user_access_discussion(user, discussion):
     playlist = discussion.playlist
     if playlist.public:
-        return True
+        return
     PlaylistUserContext = apps.get_model('playlists', 'PlaylistUserContext')
     try:
         plc = PlaylistUserContext.objects.get(user=user, playlist=playlist)
     except PlaylistUserContext.DoesNotExist:
-        return False
+        raise PermissionDenied
     follower_rank = PlaylistUserContext.ROLE_ORDINALS[
         PlaylistUserContext.FOLLOWER]
     if PlaylistUserContext.ROLE_ORDINALS[plc.role] < follower_rank:
-        return False
-    return True
+        raise PermissionDenied
 
 def can_moderate_comments(user, comment):
     discussion = comment.content_type.model_class().objects.get(
@@ -33,10 +32,10 @@ def can_moderate_comments(user, comment):
         plc = PlaylistUserContext.objects.get(user=user,
             playlist=discussion.playlist)
     except PlaylistUserContext.DoesNotExist:
-        return False
+        raise PermissionDenied
 
     admin_rank = PlaylistUserContext.ROLE_ORDINALS[
         PlaylistUserContext.ADMIN]
     if PlaylistUserContext.ROLE_ORDINALS[plc.role] >= admin_rank:
-        return True
-    return False
+        return
+    raise PermissionDenied
