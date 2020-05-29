@@ -1,5 +1,13 @@
 from django.apps import apps
+from rest_framework.exceptions import PermissionDenied
 
+from django_comments_xtd.models import XtdComment
+
+
+def not_my_comment(request):
+    cmt = XtdComment.objects.get(id=int(request.data['comment']))
+    if cmt.user == request.user:
+        raise PermissionDenied
 
 def can_user_access_discussion(user, discussion):
     playlist = discussion.playlist
