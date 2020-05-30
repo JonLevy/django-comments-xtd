@@ -48,6 +48,7 @@ class CommentCreate(generics.CreateAPIView):
             return Response([k for k in six.iterkeys(serializer.errors)],
                             status=400)
         response.data['id'] = self.resp_dict['comment']['id']
+        response.data['level'] = self.resp_dict['comment']['level']
         if self.resp_dict['code'] == 201:  # The comment has been created.
             return response
         elif self.resp_dict['code'] in [202, 204, 403]:
