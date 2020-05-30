@@ -28,10 +28,10 @@ class XtdCommentForm(CommentForm):
             label=_("Name"),
             widget=forms.TextInput(attrs={'placeholder': _('name'),
                                           'class': 'form-control'}))
-        self.fields['email'] = forms.EmailField(
-            label=_("Mail"), help_text=_("Required for comment verification"),
-            widget=forms.TextInput(attrs={'placeholder': _('mail address'),
-                                          'class': 'form-control'}))
+#        self.fields['email'] = forms.EmailField(  # ROIL removes email
+#            label=_("Mail"), help_text=_("Required for comment verification"),
+#            widget=forms.TextInput(attrs={'placeholder': _('mail address'),
+#                                          'class': 'form-control'}))
         self.fields['url'] = forms.URLField(
             label=_("Link"), required=False,
             widget=forms.TextInput(attrs={

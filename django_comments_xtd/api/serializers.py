@@ -34,7 +34,7 @@ class WriteCommentSerializer(serializers.Serializer):
     security_hash = serializers.CharField()
     honeypot = serializers.CharField(allow_blank=True)
     name = serializers.CharField(allow_blank=True)
-    email = serializers.EmailField(allow_blank=True)
+#    email = serializers.EmailField(allow_blank=True)
     url = serializers.URLField(required=False)
     comment = serializers.CharField(max_length=COMMENT_MAX_LENGTH)
     followup = serializers.BooleanField(default=False)
@@ -48,17 +48,6 @@ class WriteCommentSerializer(serializers.Serializer):
     def validate_name(self, value):
         if value != self.request.user.get_username():
             raise serializers.ValidationError("Name should match username.")
-        return value
-
-    def validate_email(self, value):
-        if not len(value):
-            if (
-                    not len(self.request.user.email) or
-                    not self.request.user.is_authenticated
-            ):
-                raise serializers.ValidationError("This field is required")
-            else:
-                return self.request.user.email
         return value
 
     def validate(self, data):
@@ -86,7 +75,6 @@ class WriteCommentSerializer(serializers.Serializer):
                 "Attempting go get content-type %r and object PK %r exists "
                 "raised %s" % (escape(ctype), escape(object_pk),
                                e.__class__.__name__))
-
         self.form = get_form()(target, data=data)
 
         # Check security information
@@ -207,7 +195,7 @@ class ReadCommentSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(max_length=50, read_only=True)
     user_url = serializers.CharField(read_only=True)
     user_moderator = serializers.SerializerMethodField()
-    user_avatar = serializers.SerializerMethodField()
+#    user_avatar = serializers.SerializerMethodField()
     submit_date = serializers.SerializerMethodField()
     parent_id = serializers.IntegerField(default=0, read_only=True)
     level = serializers.IntegerField(read_only=True)
@@ -221,7 +209,8 @@ class ReadCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = XtdComment
         fields = ('id', 'user_name', 'user_url', 'user_moderator',
-                  'user_avatar', 'permalink', 'comment', 'submit_date',
+                 # 'user_avatar',  # ROIL removing user_avatar
+                  'permalink', 'comment', 'submit_date',
                   'parent_id', 'level', 'is_removed', 'allow_reply', 'flags',
                   'edited')
 
@@ -252,10 +241,12 @@ class ReadCommentSerializer(serializers.ModelSerializer):
     def get_allow_reply(self, obj):
         return obj.allow_thread()
 
-    def get_user_avatar(self, obj):
-        path = hashlib.md5(obj.user_email.lower().encode('utf-8')).hexdigest()
-        param = urlencode({'s': 48})
-        return "//www.gravatar.com/avatar/%s?%s&d=mm" % (path, param)
+# ROIL removing user_avatar
+#    def get_user_avatar(self, obj):
+#        return  # disabled, so as to not reveal user email
+#        path = hashlib.md5(obj.user_email.lower().encode('utf-8')).hexdigest()
+#        param = urlencode({'s': 48})
+#        return "//www.gravatar.com/avatar/%s?%s&d=mm" % (path, param)
 
     def get_permalink(self, obj):
         return obj.get_absolute_url()

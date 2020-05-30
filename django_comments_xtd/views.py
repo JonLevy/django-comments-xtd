@@ -205,31 +205,34 @@ def notify_comment_followers(comment):
             instance.user_name,
             signed.dumps(instance, compress=True,
                          extra_key=settings.COMMENTS_XTD_SALT))
+# TODO send notifications using ROIL messages
 
     # model = apps.get_model(comment.content_type.app_label,
     #                        comment.content_type.model)
     # target = model._default_manager.get(pk=comment.object_pk)
-    subject = _("new comment posted")
-    text_message_template = loader.get_template(
-        "django_comments_xtd/email_followup_comment.txt")
-    if settings.COMMENTS_XTD_SEND_HTML_EMAIL:
-        html_message_template = loader.get_template(
-            "django_comments_xtd/email_followup_comment.html")
 
-    for email, (name, key) in six.iteritems(followers):
-        mute_url = reverse('comments-xtd-mute', args=[key.decode('utf-8')])
-        message_context = {'user_name': name,
-                           'comment': comment,
-                           # 'content_object': target,
-                           'mute_url': mute_url,
-                           'site': comment.site}
-        text_message = text_message_template.render(message_context)
-        if settings.COMMENTS_XTD_SEND_HTML_EMAIL:
-            html_message = html_message_template.render(message_context)
-        else:
-            html_message = None
-        send_mail(subject, text_message, settings.COMMENTS_XTD_FROM_EMAIL,
-                  [email, ], html=html_message)
+# ROIL does not email re comment replies, so deactivated
+#    subject = _("new comment posted")
+#    text_message_template = loader.get_template(
+#        "django_comments_xtd/email_followup_comment.txt")
+#    if settings.COMMENTS_XTD_SEND_HTML_EMAIL:
+#        html_message_template = loader.get_template(
+#            "django_comments_xtd/email_followup_comment.html")
+#
+#    for email, (name, key) in six.iteritems(followers):
+#        mute_url = reverse('comments-xtd-mute', args=[key.decode('utf-8')])
+#        message_context = {'user_name': name,
+#                           'comment': comment,
+#                           # 'content_object': target,
+#                           'mute_url': mute_url,
+#                           'site': comment.site}
+#        text_message = text_message_template.render(message_context)
+#        if settings.COMMENTS_XTD_SEND_HTML_EMAIL:
+#            html_message = html_message_template.render(message_context)
+#        else:
+#            html_message = None
+#        send_mail(subject, text_message, settings.COMMENTS_XTD_FROM_EMAIL,
+#                  [email, ], html=html_message)
 
 
 def reply(request, cid):
